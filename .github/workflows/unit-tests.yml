@@ -1,0 +1,26 @@
+name: Unit Tests
+on:
+  workflow_call:
+
+jobs:
+  run-unit-tests:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout action
+        uses: actions/checkout@v6
+        with:
+          path: main
+          fetch-depth: 0
+      - name: checkout bats-core
+        uses: actions/checkout@v6
+        with:
+          path: bats-core
+          repository: bats-core/bats-core
+          fetch-depth: 0
+      - name: Install BATS test framework
+        run:
+          sudo ./bats-core/install.sh /usr/local
+      - name: Execute BATS tests
+        run:
+          cd main && bats test/check-quality-gate-test.bats
