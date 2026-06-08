@@ -2,18 +2,27 @@ name: Unit Tests
 on:
   workflow_call:
 
+permissions: {}
+
 jobs:
   run-unit-tests:
+    permissions:
+      contents: read  # for actions/checkout to fetch code
     name: Run Unit Tests
     runs-on: ubuntu-latest
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@ab7a9404c0f3da075243ca237b5fac12c98deaa5 # v2.19.3
+        with:
+          egress-policy: audit
+
       - name: checkout action
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           path: main
           fetch-depth: 0
       - name: checkout bats-core
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           path: bats-core
           repository: bats-core/bats-core
