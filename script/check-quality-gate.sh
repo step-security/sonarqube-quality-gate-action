@@ -64,6 +64,15 @@ if [[ ${status} == "PENDING" || ${status} == "IN_PROGRESS" ]] && [[ ${SECONDS} -
     exit 1
 fi
 
+if [[ ${status} == "CANCELED" ]]; then
+    fail "The SonarQube background task was CANCELED."
+fi
+
+if [[ ${status} == "FAILED" ]]; then
+    errorMessage="$(jq -r '.task.errorMessage // "No error message provided."' <<< "${task}")"
+    fail "The SonarQube background task ${status}.${reset}\n\n${errorMessage}"
+fi
+
 analysisId="$(jq -r '.task.analysisId' <<< "${task}")"
 qualityGateUrl="${serverUrl}/api/qualitygates/project_status?analysisId=${analysisId}"
 qualityGateStatus="$(curl "${CURL_OPTS[@]}" "${qualityGateUrl}" | jq -r '.projectStatus.status')"
@@ -84,4 +93,3 @@ else
    set_output "quality-gate-status" "FAILED"
    fail "Quality Gate not set for the project. Please configure the Quality Gate in SonarQube or remove sonarqube-quality-gate action from the workflow."
 fi
-
